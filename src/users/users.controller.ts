@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { CreateUserResponse } from './response/create-user.res'
 
 @ApiTags('Users')
 @Controller('users')
@@ -11,7 +12,9 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({ description: '创建用户', type: CreateUserResponse })
+  create(@Body() createUserDto: CreateUserDto): Promise<any> {
     return this.usersService.create(createUserDto)
   }
 

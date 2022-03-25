@@ -7,7 +7,7 @@ export class User {
   id: string
 
   // 账号
-  @Column()
+  @Column({ unique: true })
   username: string
 
   // 密码
@@ -28,4 +28,8 @@ export class User {
   // 软删除
   @Column({ name: 'is_delete', default: false })
   isDelete: boolean
+
+  // 加密盐
+  @Column()
+  salt: string
 }

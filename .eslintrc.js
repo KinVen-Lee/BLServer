@@ -17,6 +17,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     'no-useless-constructor': 'off',
+    'class-methods-use-this': 'off',
     'import/extensions': [
       'error',
       'ignorePackages',

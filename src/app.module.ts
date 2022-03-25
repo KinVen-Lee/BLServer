@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import envConfig from '../envs/env.config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { AppService } from './app.service'
         entities: [`${__dirname}/**/*.entity{.ts,.js}`],
         synchronize: configService.get('DB_SYN')
       })
-    })
+    }),
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService]

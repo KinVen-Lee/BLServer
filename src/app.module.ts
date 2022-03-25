@@ -4,12 +4,13 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import envConfig from '../config/envs/env.config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
+import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // 设置为全局
+      isGlobal: true,
       envFilePath: [envConfig]
     }),
     TypeOrmModule.forRootAsync({
@@ -26,7 +27,8 @@ import { UsersModule } from './users/users.module'
         synchronize: configService.get('DB_SYN')
       })
     }),
-    UsersModule
+    UsersModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService]

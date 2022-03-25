@@ -18,6 +18,8 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'no-useless-constructor': 'off',
     'class-methods-use-this': 'off',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
     'import/extensions': [
       'error',
       'ignorePackages',

@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { makeHash, makeSalt } from '../utils/bcrypt'
@@ -8,75 +8,63 @@ import { User } from './entities/user.entity'
 
 @Injectable()
 export class UsersService {
-  private readonly users
-
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
-  ) {
-    this.users = [
-      {
-        userId: 1,
-        username: 'john',
-        password: 'changeme'
-      },
-      {
-        userId: 2,
-        username: 'chris',
-        password: 'secret'
-      },
-      {
-        userId: 3,
-        username: 'maria',
-        password: 'guess'
-      }
-    ]
-  }
+    private readonly usersRepository: Repository<User>
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const { username, password, passwordRepeat } = createUserDto
     if (password !== passwordRepeat) {
-      throw new NotFoundException('两次输入的密码不一致，请检查')
+      throw new BadRequestException('两次输入的密码不一致，请检查')
     }
 
     const hasUser = await this.findOneByUserName(username)
-
     if (hasUser) {
-      throw new NotFoundException('该用户已存在')
+      throw new BadRequestException('该用户已存在')
     }
 
     const salt = await makeSalt()
     const hashPassword = await makeHash(password, salt)
-
-    const user: User = new User()
-    const newUser = await this.userRepository.save({
-      ...user,
+    const createUser = await this.usersRepository.create({
       username,
       salt,
       password: hashPassword
     })
 
-    return newUser
+    const saveUser = await this.usersRepository.save(createUser)
+    return saveUser
   }
 
-  async findOneByUserName(username: string) {
-    const user = this.userRepository.findOne({ where: { username } })
+  // async findOneByUserName(username: string) {
+  //   const user = this.usersRepository.findOne({ where: { username } })
+  //   return user
+  // }
+
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find()
+  }
+
+  async findOneByUserName(username: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { username } })
     return user
   }
 
-  findAll() {
-    return `This action returns all users`
-  }
-
-  async findOne(username: string) {
-    return this.users.find(user => user.username === username)
+  async findOneById(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } })
+    return user
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`
+  async remove(id: string): Promise<User> {
+    let user = await this.findOneById(id)
+    if (!user) {
+      throw new NotFoundException('该用户不存在')
+    }
+    user = await this.usersRepository.remove(user)
+    return user
   }
 }

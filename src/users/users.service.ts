@@ -28,18 +28,12 @@ export class UsersService {
     const hashPassword = await makeHash(password, salt)
     const createUser = await this.usersRepository.create({
       username,
-      salt,
       password: hashPassword
     })
 
     const saveUser = await this.usersRepository.save(createUser)
     return saveUser
   }
-
-  // async findOneByUserName(username: string) {
-  //   const user = this.usersRepository.findOne({ where: { username } })
-  //   return user
-  // }
 
   findAll(): Promise<User[]> {
     return this.usersRepository.find()
@@ -50,21 +44,31 @@ export class UsersService {
     return user
   }
 
-  async findOneById(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } })
+  async findOne(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne(id)
+    if (!user) {
+      throw new NotFoundException('找不到该用户')
+    }
     return user
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`
+  async update(id: string, updateUserDto: Partial<UpdateUserDto>) {
+    const user = await this.usersRepository.findOne(id)
+    if (!user) {
+      throw new NotFoundException('找不到该用户')
+    }
+
+    const updateUser = await this.usersRepository.save(Object.assign(user, updateUserDto))
+    return updateUser
   }
 
   async remove(id: string): Promise<User> {
-    let user = await this.findOneById(id)
+    let user = await this.findOne(id)
     if (!user) {
       throw new NotFoundException('该用户不存在')
     }
-    user = await this.usersRepository.remove(user)
-    return user
+    user = Object.assign(user, { isDeleted: true })
+    const deleteUser = await this.usersRepository.save(user)
+    return deleteUser
   }
 }

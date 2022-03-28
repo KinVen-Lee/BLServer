@@ -1,6 +1,17 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
+import {
+  OneToMany,
+  JoinColumn,
+  OneToOne,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm'
+import { Profile } from '../../profiles/entities/profile.entity'
+import { Article } from '../../articles/entities/article.entity'
 
-@Entity('user')
+@Entity('users')
 export class User {
   // 用户ID
   @PrimaryGeneratedColumn('uuid')
@@ -26,10 +37,13 @@ export class User {
   isActive: boolean
 
   // 软删除
-  @Column({ name: 'is_delete', default: false })
-  isDelete: boolean
+  @Column({ name: 'is_deleted', default: false })
+  isDeleted: boolean
 
-  // 加密盐
-  @Column()
-  salt: string
+  @OneToOne(type => Profile, profile => profile.user)
+  @JoinColumn()
+  profile: Profile
+
+  @OneToMany(type => Article, article => article.author)
+  articles: Article[]
 }
